@@ -1,0 +1,291 @@
+.staff-page {
+  padding: 0 32px 32px;
+}
+
+.staff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 24px;
+}
+
+.staff-breadcrumb {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.staff-breadcrumb strong {
+  color: var(--text-primary);
+}
+
+.staff-title-section {
+  margin-bottom: 24px;
+}
+
+.staff-title-section h1 {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.staff-title-section p {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.staff-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.search-box {
+  flex: 1;
+  position: relative;
+  max-width: 500px;
+}
+
+.search-box .search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.search-box input {
+  width: 100%;
+  padding-left: 40px;
+}
+
+/* Table */
+.staff-table-wrapper {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.staff-table thead th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.staff-table tbody tr {
+  transition: background var(--transition-fast);
+}
+
+.staff-table tbody tr:hover {
+  background: var(--bg-hover);
+}
+
+.staff-table tbody td {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  font-size: 14px;
+}
+
+.emp-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.emp-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: white;
+  flex-shrink: 0;
+}
+
+.emp-name {
+  font-weight: 600;
+  color: var(--accent-blue);
+}
+
+.emp-id {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.emp-role {
+  font-weight: 500;
+}
+
+.emp-dept {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.emp-contact {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.action-btns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+.icon-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.icon-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.icon-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--accent-red);
+}
+
+.table-loading, .table-empty {
+  text-align: center;
+  padding: 60px 20px !important;
+  color: var(--text-secondary);
+}
+
+/* Pagination */
+.staff-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+}
+
+.pagination-info {
+  font-size: 13px;
+  color: var(--accent-blue);
+}
+
+.pagination-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.pagination-btns button {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  border: 1px solid var(--border-color);
+}
+
+.pagination-btns button:hover:not(:disabled) {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.pagination-btns button.active {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+.pagination-btns button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Employee Form Modal */
+.emp-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.color-picker {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-dot {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.color-dot:hover {
+  transform: scale(1.15);
+}
+
+.color-dot.selected {
+  border-color: white;
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
+.modal-content h2 {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.modal-content select {
+  width: 100%;
+}

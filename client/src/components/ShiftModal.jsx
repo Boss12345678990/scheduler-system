@@ -1,0 +1,109 @@
+import { useState } from 'react';
+import api from '../services/api';
+import './ShiftModal.css';
+
+const SHIFT_TYPES = [
+  { key: 'morning', label: '早 (Morning)' },
+  { key: 'afternoon', label: '午 (Afternoon)' },
+  { key: 'night', label: '晚 (Night)' },
+];
+
+export default function ShiftModal({ date, schedule, employees, onClose }) {
+  const [dayType, setDayType] = useState(schedule?.dayType || 'working');
+  const [shifts, setShifts] = useState({
+    morning: schedule?.shifts?.morning?.map(e => e._id) || [],
+    afternoon: schedule?.shifts?.afternoon?.map(e => e._id) || [],
+    night: schedule?.shifts?.night?.map(e => e._id) || [],
+  });
+  const [saving, setSaving] = useState(false);
+
+  const toggleEmployee = (shiftKey, empId) => {
+    setShifts(prev => {
+      const current = prev[shiftKey];
+      const updated = current.includes(empId)
+        ? current.filter(id => id !== empId)
+        : [...current, empId];
+      return { ...prev, [shiftKey]: updated };
+    });
+  };
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      await api.put(`/schedules/${date}`, { dayType, shifts });
+      onClose();
+    } catch (err) {
+      alert('Error saving schedule');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content shift-modal" onClick={e => e.stopPropagation()}>
+        <h2>分配 {date} 的排班</h2>
+        <p className="shift-modal-subtitle">Assign shifts for {date}</p>
+
+        <div className="day-type-toggle">
+          <label className={`day-type-option ${dayType === 'working' ? 'active' : ''}`}>
+            <input
+              type="radio"
+              name="dayType"
+              value="working"
+              checked={dayType === 'working'}
+              onChange={() => setDayType('working')}
+            />
+            ● 營業 (Working)
+          </label>
+          <label className={`day-type-option ${dayType === 'dayoff' ? 'active' : ''}`}>
+            <input
+              type="radio"
+              name="dayType"
+              value="dayoff"
+              checked={dayType === 'dayoff'}
+              onChange={() => setDayType('dayoff')}
+            />
+            ○ 休診 (Day Off)
+          </label>
+        </div>
+
+        {dayType === 'working' && (
+          <div className="shifts-container">
+            {SHIFT_TYPES.map(({ key, label }) => (
+              <div key={key} className="shift-section">
+                <h3 className="shift-section-label">{label}</h3>
+                <div className="shift-employee-list">
+                  {employees.filter(e => e.status === 'Active').sort((a, b) => (a.role === '牙助' ? -1 : 1) - (b.role === '牙助' ? -1 : 1)).map(emp => {
+                    const isSelected = shifts[key].includes(emp._id);
+                    return (
+                      <button
+                        key={emp._id}
+                        className={`shift-emp-btn ${isSelected ? 'selected' : ''}`}
+                        onClick={() => toggleEmployee(key, emp._id)}
+                        style={isSelected ? { background: emp.color || '#3b82f6', borderColor: emp.color || '#3b82f6' } : {}}
+                      >
+                        <span className="shift-emp-initials">{emp.initials || emp.name.charAt(0)}</span>
+                        <span className="shift-emp-name">{emp.name}</span>
+                      </button>
+                    );
+                  })}
+                  {employees.filter(e => e.status === 'Active').length === 0 && (
+                    <p className="no-employees">No active employees. Add employees first.</p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="shift-modal-actions">
+          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
+            {saving ? <span className="spinner" /> : '確認 (Confirm)'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

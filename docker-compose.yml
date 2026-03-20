@@ -1,0 +1,29 @@
+services:
+  mongo:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+
+  server:
+    build: ./server
+    ports:
+      - '5001:5000'
+    environment:
+      PORT: 5000
+      MONGO_URI: mongodb://mongo:27017/clinic-scheduler
+      JWT_SECRET: clinic_scheduler_jwt_secret_2024
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-your_gemini_api_key_here}
+    depends_on:
+      - mongo
+
+  client:
+    build: ./client
+    ports:
+      - '5173:5173'
+    depends_on:
+      - server
+
+volumes:
+  mongo-data:

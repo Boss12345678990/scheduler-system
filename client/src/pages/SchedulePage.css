@@ -1,0 +1,158 @@
+.schedule-page {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Header */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.calendar-nav {
+  display: flex;
+  gap: 6px;
+}
+
+.calendar-month-title {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.calendar-view-toggles {
+  display: flex;
+  gap: 4px;
+}
+
+.calendar-view-toggles .active {
+  background: var(--accent-blue);
+  color: white;
+  border-color: var(--accent-blue);
+}
+
+/* Grid */
+.calendar-grid {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.calendar-day-headers {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.day-header {
+  padding: 10px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.calendar-cells {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-auto-rows: 1fr;
+}
+
+.calendar-cell {
+  border-right: 1px solid var(--border-subtle);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 6px 8px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  overflow: hidden;
+  position: relative;
+  min-height: 100px;
+}
+
+.calendar-cell:hover {
+  background: var(--bg-hover);
+}
+
+.calendar-cell.other-month {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.calendar-cell.today {
+  background: rgba(59, 130, 246, 0.06);
+}
+
+.calendar-cell.today .cell-day {
+  color: var(--accent-blue);
+  font-weight: 700;
+}
+
+.calendar-cell.day-off {
+  background: rgba(180, 160, 90, 0.25);
+}
+
+.cell-day {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.day-off-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  opacity: 0.8;
+}
+
+/* Shifts in cells */
+.cell-shifts {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.shift-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+}
+
+.shift-row + .shift-row {
+  border-top: 1px solid var(--border-subtle);
+}
+
+.shift-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  min-width: 20px;
+}
+
+.shift-badges {
+  display: flex;
+  gap: 2px;
+  flex-wrap: wrap;
+}
+
+/* Footer */
+.calendar-footer {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
