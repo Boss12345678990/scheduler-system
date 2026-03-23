@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef } from 'react';
-import { FiSend, FiSearch, FiBell } from 'react-icons/fi';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FiSend, FiPlus } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi2';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -7,34 +8,16 @@ import './AIAgentPage.css';
 
 export default function AIAgentPage() {
   const { user } = useAuth();
+  const location = useLocation();
   const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState(() => sessionStorage.getItem('ai-draft') || '');
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef(null);
+  const autoSendHandled = useRef(false);
+  const initialLoad = useRef(true);
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await api.get('/ai/history');
-        setMessages(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchHistory();
-  }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const handleSend = async () => {
-    if (!input.trim() || sending) return;
-    const message = input.trim();
-    setInput('');
+  const sendMessage = useCallback(async (message) => {
     setSending(true);
-
-    // Optimistic update
     setMessages(prev => [...prev, { role: 'user', content: message, timestamp: new Date() }]);
 
     try {
@@ -48,6 +31,55 @@ export default function AIAgentPage() {
       }]);
     } finally {
       setSending(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchHistory = async () => {
+      try {
+        const res = await api.get('/ai/history');
+        setMessages(res.data);
+      } catch (err) {
+        console.error(err);
+      }
+
+      // Auto-send message from navigation state after history loads
+      if (location.state?.autoSend && !autoSendHandled.current) {
+        autoSendHandled.current = true;
+        sendMessage(location.state.autoSend);
+      }
+    };
+    fetchHistory();
+  }, [location.state, sendMessage]);
+
+  useEffect(() => {
+    if (initialLoad.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'instant' });
+      initialLoad.current = false;
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages]);
+
+  const updateInput = (value) => {
+    setInput(value);
+    sessionStorage.setItem('ai-draft', value);
+  };
+
+  const handleSend = async () => {
+    if (!input.trim() || sending) return;
+    const message = input.trim();
+    updateInput('');
+    sendMessage(message);
+  };
+
+  const handleNewChat = async () => {
+    try {
+      await api.post('/ai/history/clear');
+      setMessages([]);
+      updateInput('');
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -74,8 +106,9 @@ export default function AIAgentPage() {
           <span className="badge badge-online">ONLINE</span>
         </div>
         <div className="ai-header-right">
-          <button className="icon-btn"><FiSearch /></button>
-          <button className="icon-btn"><FiBell /></button>
+          <button className="btn-new-chat" onClick={handleNewChat} disabled={sending}>
+            <FiPlus /> New Chat
+          </button>
         </div>
       </div>
 
@@ -87,9 +120,9 @@ export default function AIAgentPage() {
             <h2>Welcome to AI Assistant</h2>
             <p>I can help you with scheduling, answer questions about the system, and provide work summaries.</p>
             <div className="ai-suggestions">
-              <button onClick={() => setInput('Show me a summary of this month\'s schedule')}>📊 Monthly summary</button>
-              <button onClick={() => setInput('Are there any scheduling conflicts?')}>⚠️ Check conflicts</button>
-              <button onClick={() => setInput('How do I use the scheduling system?')}>❓ How to use</button>
+              <button onClick={() => updateInput('Show me a summary of this month\'s schedule')}>📊 Monthly summary</button>
+              <button onClick={() => updateInput('Are there any scheduling conflicts?')}>⚠️ Check conflicts</button>
+              <button onClick={() => updateInput('How do I use the scheduling system?')}>❓ How to use</button>
             </div>
           </div>
         )}
@@ -139,7 +172,7 @@ export default function AIAgentPage() {
             type="text"
             placeholder="Type a message or ask for help with scheduling..."
             value={input}
-            onChange={(e) => setInput(e.target.value)}
+            onChange={(e) => updateInput(e.target.value)}
             onKeyDown={handleKeyDown}
             disabled={sending}
           />

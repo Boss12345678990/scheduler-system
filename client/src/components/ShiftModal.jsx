@@ -15,6 +15,11 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
     afternoon: schedule?.shifts?.afternoon?.map(e => e._id) || [],
     night: schedule?.shifts?.night?.map(e => e._id) || [],
   });
+  const [surgery, setSurgery] = useState({
+    morning: schedule?.surgery?.morning || false,
+    afternoon: schedule?.surgery?.afternoon || false,
+    night: schedule?.surgery?.night || false,
+  });
   const [saving, setSaving] = useState(false);
 
   const toggleEmployee = (shiftKey, empId) => {
@@ -28,9 +33,20 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
   };
 
   const handleSave = async () => {
+    // Validate: surgery shifts must have at least one 牙助
+    for (const { key, label } of SHIFT_TYPES) {
+      if (surgery[key]) {
+        const shiftEmpIds = shifts[key];
+        const numberofYazhu = employees.filter(e => shiftEmpIds.includes(e._id) && e.role === '牙助').length;
+        if (numberofYazhu < 2) {
+          alert(`${label} 有開刀，必須至少安排兩位牙助！`);
+          return;
+        }
+      }
+    }
     setSaving(true);
     try {
-      await api.put(`/schedules/${date}`, { dayType, shifts });
+      await api.put(`/schedules/${date}`, { dayType, shifts, surgery });
       onClose();
     } catch (err) {
       alert('Error saving schedule');
@@ -72,20 +88,45 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
           <div className="shifts-container">
             {SHIFT_TYPES.map(({ key, label }) => (
               <div key={key} className="shift-section">
-                <h3 className="shift-section-label">{label}</h3>
-                <div className="shift-employee-list">
-                  {employees.filter(e => e.status === 'Active').sort((a, b) => (a.role === '牙助' ? -1 : 1) - (b.role === '牙助' ? -1 : 1)).map(emp => {
-                    const isSelected = shifts[key].includes(emp._id);
+                <div className="shift-section-header">
+                  <h3 className="shift-section-label">{label}</h3>
+                  <label className={`surgery-toggle ${surgery[key] ? 'active' : ''}`}>
+                    <input
+                      type="checkbox"
+                      checked={surgery[key]}
+                      onChange={() => setSurgery(prev => ({ ...prev, [key]: !prev[key] }))}
+                    />
+                    手術時段
+                  </label>
+                </div>
+                <div className="shift-employee-groups">
+                  {['牙助', '櫃台'].map(role => {
+                    const roleEmps = employees.filter(e => e.status === 'Active' && e.role === role);
+                    if (roleEmps.length === 0) return null;
+                    const roleColor = role === '牙助' ? '#3b82f6' : '#ec4899';
                     return (
-                      <button
-                        key={emp._id}
-                        className={`shift-emp-btn ${isSelected ? 'selected' : ''}`}
-                        onClick={() => toggleEmployee(key, emp._id)}
-                        style={isSelected ? { background: emp.color || '#3b82f6', borderColor: emp.color || '#3b82f6' } : {}}
-                      >
-                        <span className="shift-emp-initials">{emp.initials || emp.name.charAt(0)}</span>
-                        <span className="shift-emp-name">{emp.name}</span>
-                      </button>
+                      <div key={role} className="shift-role-group">
+                        <span className="shift-role-label" style={{ color: roleColor }}>{role}</span>
+                        <div className="shift-employee-list">
+                          {roleEmps.map(emp => {
+                            const isSelected = shifts[key].includes(emp._id);
+                            return (
+                              <button
+                                key={emp._id}
+                                className={`shift-emp-btn ${isSelected ? 'selected' : ''}`}
+                                onClick={() => toggleEmployee(key, emp._id)}
+                                title={emp.name}
+                                style={isSelected
+                                  ? { background: roleColor, borderColor: roleColor, color: 'white' }
+                                  : { background: `${roleColor}15`, borderColor: `${roleColor}40`, color: roleColor }}
+                              >
+                                <span className="shift-emp-initials">{emp.initials || emp.name.charAt(0)}</span>
+                                <span className="shift-emp-name">{emp.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
                     );
                   })}
                   {employees.filter(e => e.status === 'Active').length === 0 && (

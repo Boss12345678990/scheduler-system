@@ -40,7 +40,7 @@ export default function EmployeeProfilePage() {
 
       <div className="profile-card">
         <div className="profile-header-section">
-          <div className="profile-avatar" style={{ background: employee.color || '#3b82f6' }}>
+          <div className="profile-avatar" style={{ background: employee.role === '櫃台' ? '#ec4899' : '#3b82f6' }}>
             {employee.initials || employee.name.charAt(0)}
           </div>
           <div className="profile-info">

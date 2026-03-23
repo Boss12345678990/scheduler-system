@@ -48,11 +48,63 @@
   margin-bottom: 24px;
 }
 
+.shift-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
 .shift-section-label {
   font-size: 14px;
   font-weight: 600;
   color: var(--text-secondary);
-  margin-bottom: 10px;
+}
+
+.surgery-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-fast);
+}
+
+.surgery-toggle:hover {
+  border-color: var(--text-muted);
+}
+
+.surgery-toggle.active {
+  background: #ef4444;
+  color: white;
+  border-color: #ef4444;
+}
+
+.surgery-toggle input {
+  display: none;
+}
+
+.shift-employee-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.shift-role-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shift-role-label {
+  font-size: 15px;
+  font-weight: 700;
+  min-width: 36px;
 }
 
 .shift-employee-list {
@@ -75,8 +127,7 @@
 }
 
 .shift-emp-btn:hover {
-  border-color: var(--text-muted);
-  color: var(--text-primary);
+  filter: brightness(0.92);
 }
 
 .shift-emp-btn.selected {

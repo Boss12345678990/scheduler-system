@@ -4,7 +4,7 @@ import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiChevronLeft, FiChevronRight, FiD
 import api from '../services/api';
 import './StaffPage.css';
 
-const COLORS = ['#3b82f6', '#22c55e', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#06b6d4', '#f97316'];
+const ROLE_COLORS = { '牙助': '#3b82f6', '櫃台': '#ec4899' };
 
 export default function StaffPage() {
   const [employees, setEmployees] = useState([]);
@@ -17,7 +17,7 @@ export default function StaffPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active', color: '#3b82f6' });
+  const [form, setForm] = useState({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active' });
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -37,13 +37,13 @@ export default function StaffPage() {
 
   const openAdd = () => {
     setEditingEmployee(null);
-    setForm({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active', color: COLORS[Math.floor(Math.random() * COLORS.length)] });
+    setForm({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active' });
     setShowModal(true);
   };
 
   const openEdit = (emp) => {
     setEditingEmployee(emp);
-    setForm({ name: emp.name, role: emp.role, phone: emp.phone, department: emp.department, email: emp.email, status: emp.status, color: emp.color });
+    setForm({ name: emp.name, role: emp.role, phone: emp.phone, department: emp.department, email: emp.email, status: emp.status });
     setShowModal(true);
   };
 
@@ -126,7 +126,7 @@ export default function StaffPage() {
                 <tr key={emp._id}>
                   <td>
                     <div className="emp-name-cell">
-                      <div className="emp-avatar" style={{ background: emp.color || '#3b82f6' }}>
+                      <div className="emp-avatar" style={{ background: ROLE_COLORS[emp.role] || '#3b82f6' }}>
                         {emp.initials || emp.name.charAt(0)}
                       </div>
                       <div>
@@ -210,20 +210,6 @@ export default function StaffPage() {
                     <option value="On Leave">On Leave</option>
                     <option value="Inactive">Inactive</option>
                   </select>
-                </div>
-              </div>
-              <div className="form-group">
-                <label>Badge Color</label>
-                <div className="color-picker">
-                  {COLORS.map(c => (
-                    <button
-                      key={c}
-                      type="button"
-                      className={`color-dot ${form.color === c ? 'selected' : ''}`}
-                      style={{ background: c }}
-                      onClick={() => setForm({ ...form, color: c })}
-                    />
-                  ))}
                 </div>
               </div>
               <div className="form-actions">

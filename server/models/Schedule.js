@@ -24,6 +24,11 @@ const scheduleSchema = new mongoose.Schema({
       ref: 'Employee',
     }],
   },
+  surgery: {
+    morning: { type: Boolean, default: false },
+    afternoon: { type: Boolean, default: false },
+    night: { type: Boolean, default: false },
+  },
   createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',

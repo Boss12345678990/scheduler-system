@@ -43,7 +43,7 @@ const employeeSchema = new mongoose.Schema({
   },
   color: {
     type: String,
-    default: '#3b82f6',
+    default: '#3b82f6', // overridden by pre-save hook based on role
   },
   dateJoined: {
     type: Date,
@@ -58,11 +58,16 @@ const employeeSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-// Auto-generate initials from name before saving
+// Auto-generate initials and assign color based on role before saving
+const ROLE_COLORS = { '牙助': '#3b82f6', '櫃台': '#ec4899' };
+
 employeeSchema.pre('save', function () {
   if (this.isModified('name') || !this.initials) {
     const parts = this.name.trim().split(/\s+/);
     this.initials = parts.map(p => p.charAt(0).toUpperCase()).join('').slice(0, 2);
+  }
+  if (this.isModified('role') || !this.color || this.isNew) {
+    this.color = ROLE_COLORS[this.role] || '#3b82f6';
   }
 });
 

@@ -83,18 +83,8 @@ export default function SchedulePage() {
     fetchData();
   };
 
-  const handleGenerateSummary = async () => {
-    try {
-      const res = await api.get('/ai/summary', { params: { month: monthStr } });
-      const data = res.data;
-      let msg = `📊 Work Summary for ${data.month}\n\nWorking Days: ${data.totalWorkingDays}\nDays Off: ${data.totalDaysOff}\n\n`;
-      data.employeeStats.forEach(e => {
-        msg += `${e.name} (${e.role}): ${e.daysWorked} shifts — AM: ${e.morningShifts}, PM: ${e.afternoonShifts}, Night: ${e.nightShifts}\n`;
-      });
-      alert(msg);
-    } catch {
-      alert('Error generating summary');
-    }
+  const handleGenerateSummary = () => {
+    navigate('/ai', { state: { autoSend: '總結工作量' } });
   };
 
   const today = new Date();
@@ -143,6 +133,7 @@ export default function SchedulePage() {
                       const rawEmps = schedule.shifts[shift];
                       if (!rawEmps || rawEmps.length === 0) return null;
                       const emps = [...rawEmps].sort((a, b) => (a.role === '牙助' ? -1 : 1) - (b.role === '牙助' ? -1 : 1));
+                      const hasSurgery = schedule.surgery?.[shift];
                       return (
                         <div key={shift} className="shift-row">
                           <span className="shift-label">{SHIFT_LABELS[shift]}:</span>
@@ -158,6 +149,7 @@ export default function SchedulePage() {
                               </span>
                             ))}
                           </div>
+                          {hasSurgery && <span className="surgery-tag">開刀</span>}
                         </div>
                       );
                     })}

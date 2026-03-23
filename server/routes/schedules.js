@@ -34,7 +34,7 @@ router.put('/:date', async (req, res) => {
   try {
     const dateStr = req.params.date; // e.g. "2025-07-01"
     const date = new Date(dateStr + 'T00:00:00.000Z');
-    const { dayType, shifts } = req.body;
+    const { dayType, shifts, surgery } = req.body;
 
     let schedule = await Schedule.findOne({
       date,
@@ -49,6 +49,9 @@ router.put('/:date', async (req, res) => {
         if (shifts.afternoon) schedule.shifts.afternoon = shifts.afternoon;
         if (shifts.night) schedule.shifts.night = shifts.night;
       }
+      if (surgery !== undefined) {
+        schedule.surgery = { ...schedule.surgery?.toObject?.() || {}, ...surgery };
+      }
       await schedule.save();
     } else {
       // Create new
@@ -56,6 +59,7 @@ router.put('/:date', async (req, res) => {
         date,
         dayType: dayType || 'working',
         shifts: shifts || { morning: [], afternoon: [], night: [] },
+        surgery: surgery || { morning: false, afternoon: false, night: false },
         createdBy: req.user._id,
       });
     }
