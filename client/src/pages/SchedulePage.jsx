@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { FiChevronLeft, FiChevronRight, FiPrinter, FiEdit2, FiBarChart2 } from 'react-icons/fi';
 import api from '../services/api';
 import ShiftModal from '../components/ShiftModal';
@@ -9,7 +9,16 @@ const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const SHIFT_LABELS = { morning: '早', afternoon: '午', night: '晚' };
 
 export default function SchedulePage() {
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const location = useLocation();
+  const printMonthHandled = useRef(false);
+  const [currentDate, setCurrentDate] = useState(() => {
+    const pm = location.state?.printMonth;
+    if (pm) {
+      const [y, m] = pm.split('-').map(Number);
+      return new Date(y, m - 1, 1);
+    }
+    return new Date();
+  });
   const [schedules, setSchedules] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -38,6 +47,14 @@ export default function SchedulePage() {
   }, [monthStr]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Auto-print when navigated from AI agent
+  useEffect(() => {
+    if (location.state?.printMonth && !loading && !printMonthHandled.current) {
+      printMonthHandled.current = true;
+      setTimeout(() => window.print(), 500);
+    }
+  }, [location.state, loading]);
 
   // Calendar grid calculation
   const firstDay = new Date(year, month, 1).getDay();

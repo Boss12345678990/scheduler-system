@@ -8,3 +8,20 @@
   margin-left: var(--sidebar-width);
   overflow-y: auto;
 }
+
+@media print {
+  .sidebar {
+    display: none !important;
+  }
+
+  .app-layout {
+    display: block !important;
+    min-height: auto !important;
+  }
+
+  .app-main {
+    margin-left: 0 !important;
+    overflow: visible !important;
+    width: 100% !important;
+  }
+}

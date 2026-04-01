@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { FiSend, FiPlus } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi2';
 import api from '../services/api';
@@ -9,6 +9,7 @@ import './AIAgentPage.css';
 export default function AIAgentPage() {
   const { user } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState(() => sessionStorage.getItem('ai-draft') || '');
   const [sending, setSending] = useState(false);
@@ -23,6 +24,15 @@ export default function AIAgentPage() {
     try {
       const res = await api.post('/ai/chat', { message });
       setMessages(res.data.messages);
+
+      // Handle actions from AI agent
+      if (res.data.actions?.length) {
+        for (const action of res.data.actions) {
+          if (action.type === 'print_schedule') {
+            navigate('/schedule', { state: { printMonth: action.month } });
+          }
+        }
+      }
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
@@ -32,7 +42,7 @@ export default function AIAgentPage() {
     } finally {
       setSending(false);
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     const fetchHistory = async () => {

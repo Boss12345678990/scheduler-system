@@ -40,7 +40,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .calendar-day-headers {
@@ -175,4 +176,120 @@
   padding: 14px 20px;
   border-top: 1px solid var(--border-color);
   background: var(--bg-secondary);
+}
+
+/* Print styles */
+@media print {
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background: white !important;
+    color: #111 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .calendar-header .calendar-nav,
+  .calendar-header .calendar-view-toggles,
+  .calendar-footer {
+    display: none !important;
+  }
+
+  .schedule-page {
+    height: auto !important;
+    background: white !important;
+  }
+
+  .calendar-header {
+    border-bottom: 2px solid #333 !important;
+    background: white !important;
+    justify-content: center !important;
+    padding: 10px 0 !important;
+  }
+
+  .calendar-month-title {
+    color: #111 !important;
+    font-size: 24px !important;
+    text-align: center !important;
+  }
+
+  .calendar-grid {
+    overflow: visible !important;
+  }
+
+  .calendar-day-headers {
+    border-bottom: 2px solid #333 !important;
+    background: #f0f0f0 !important;
+  }
+
+  .day-header {
+    color: #333 !important;
+    font-size: 13px !important;
+    padding: 8px !important;
+  }
+
+  .calendar-cells {
+    grid-auto-rows: 1fr !important;
+  }
+
+  .calendar-cell {
+    border: 1px solid #ccc !important;
+    background: white !important;
+    min-height: 80px !important;
+    padding: 6px 8px !important;
+    page-break-inside: avoid;
+  }
+
+  .calendar-cell.today {
+    background: #eef4ff !important;
+  }
+
+  .calendar-cell.day-off {
+    background: #fef9e7 !important;
+  }
+
+  .calendar-cell.other-month {
+    opacity: 0.3 !important;
+  }
+
+  .cell-day {
+    color: #111 !important;
+    font-size: 15px !important;
+  }
+
+  .calendar-cell.today .cell-day {
+    color: #2563eb !important;
+  }
+
+  .day-off-label {
+    color: #666 !important;
+  }
+
+  .shift-label {
+    color: #333 !important;
+    font-size: 13px !important;
+  }
+
+  .shift-row + .shift-row {
+    border-top: 1px solid #ddd !important;
+  }
+
+  .employee-badge {
+    color: white !important;
+    font-size: 11px !important;
+    padding: 1px 6px !important;
+  }
+
+  .surgery-tag {
+    color: #ef4444 !important;
+    font-size: 12px !important;
+  }
+
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
 }
