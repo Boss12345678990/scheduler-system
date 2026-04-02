@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiChevronLeft, FiChevronRight, FiPrinter, FiEdit2, FiBarChart2 } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiPrinter, FiEdit2, FiBarChart2, FiZap, FiTrash2 } from 'react-icons/fi';
 import api from '../services/api';
 import ShiftModal from '../components/ShiftModal';
 import './SchedulePage.css';
@@ -23,6 +23,7 @@ export default function SchedulePage() {
   const [employees, setEmployees] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
   const navigate = useNavigate();
 
   const year = currentDate.getFullYear();
@@ -102,6 +103,35 @@ export default function SchedulePage() {
 
   const handleGenerateSummary = () => {
     navigate('/ai', { state: { autoSend: '總結工作量' } });
+  };
+
+  const handleGenerateSchedule = async () => {
+    if (!window.confirm(`Auto-generate schedule for ${monthLabel}? This will overwrite existing schedules for this month.`)) return;
+    setGenerating(true);
+    try {
+      const res = await api.post('/schedules/generate', { month: monthStr });
+      let msg = res.data.message;
+      if (res.data.warnings && res.data.warnings.length > 0) {
+        msg += '\n\n⚠️ Warnings:\n' + res.data.warnings.join('\n');
+      }
+      alert(msg);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error generating schedule');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleClearMonth = async () => {
+    if (!window.confirm(`Clear ALL schedules for ${monthLabel}? This cannot be undone.`)) return;
+    try {
+      const res = await api.delete('/schedules/clear', { params: { month: monthStr } });
+      alert(res.data.message);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error clearing schedules');
+    }
   };
 
   const today = new Date();
@@ -190,6 +220,12 @@ export default function SchedulePage() {
         <button className="btn btn-secondary" onClick={() => navigate('/staff')}>
           <FiEdit2 /> 編輯員工 / EDIT EMPLOYEES
         </button>
+        <button className="btn btn-danger" onClick={handleClearMonth}>
+          <FiTrash2 /> 清除排班 / CLEAR ALL
+        </button>
+        <button className="btn btn-primary" onClick={handleGenerateSchedule} disabled={generating}>
+          <FiZap /> {generating ? '生成中...' : '自動排班 / GENERATE SCHEDULE'}
+        </button>
         <button className="btn btn-primary" onClick={handleGenerateSummary}>
           <FiBarChart2 /> 總結工作量 / GENERATE WORK SUMMARY
         </button>
@@ -200,7 +236,10 @@ export default function SchedulePage() {
         <ShiftModal
           date={selectedDate}
           schedule={getScheduleForDate(selectedDate)}
-          employees={employees}
+          employees={employees.filter(emp => {
+            const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(selectedDate + 'T00:00:00').getDay()];
+            return !(emp.unavailableDays || []).includes(dayName);
+          })}
           onClose={handleModalClose}
         />
       )}

@@ -289,3 +289,43 @@
 .modal-content select {
   width: 100%;
 }
+
+/* Weekday Checkboxes */
+.weekday-checkboxes {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.weekday-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  transition: all var(--transition-fast);
+  user-select: none;
+}
+
+.weekday-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.weekday-checkbox:hover {
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+}
+
+.weekday-checkbox.checked {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+  font-weight: 600;
+}

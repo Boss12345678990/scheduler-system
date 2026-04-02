@@ -100,15 +100,16 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
                   </label>
                 </div>
                 <div className="shift-employee-groups">
-                  {['牙助', '櫃台'].map(role => {
+                  {['牙助', '櫃台', '牙助+櫃台'].map(role => {
                     const roleEmps = employees.filter(e => e.status === 'Active' && e.role === role);
                     if (roleEmps.length === 0) return null;
-                    const roleColor = role === '牙助' ? '#3b82f6' : '#ec4899';
+                    const roleColor = roleEmps[0]?.color || '#3b82f6';
                     return (
                       <div key={role} className="shift-role-group">
                         <span className="shift-role-label" style={{ color: roleColor }}>{role}</span>
                         <div className="shift-employee-list">
                           {roleEmps.map(emp => {
+                            const empColor = emp.color || '#3b82f6';
                             const isSelected = shifts[key].includes(emp._id);
                             return (
                               <button
@@ -117,8 +118,8 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
                                 onClick={() => toggleEmployee(key, emp._id)}
                                 title={emp.name}
                                 style={isSelected
-                                  ? { background: roleColor, borderColor: roleColor, color: 'white' }
-                                  : { background: `${roleColor}15`, borderColor: `${roleColor}40`, color: roleColor }}
+                                  ? { background: empColor, borderColor: empColor, color: 'white' }
+                                  : { background: `${empColor}15`, borderColor: `${empColor}40`, color: empColor }}
                               >
                                 <span className="shift-emp-initials">{emp.initials || emp.name.charAt(0)}</span>
                                 <span className="shift-emp-name">{emp.name}</span>

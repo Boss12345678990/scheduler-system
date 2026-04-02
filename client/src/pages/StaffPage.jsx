@@ -4,7 +4,8 @@ import { FiPlus, FiSearch, FiEdit2, FiTrash2, FiChevronLeft, FiChevronRight, FiD
 import api from '../services/api';
 import './StaffPage.css';
 
-const ROLE_COLORS = { '牙助': '#3b82f6', '櫃台': '#ec4899' };
+
+const WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 export default function StaffPage() {
   const [employees, setEmployees] = useState([]);
@@ -17,7 +18,7 @@ export default function StaffPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active' });
+  const [form, setForm] = useState({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active', workingHours: 0, unavailableDays: [] });
 
   const fetchEmployees = useCallback(async () => {
     setLoading(true);
@@ -37,13 +38,13 @@ export default function StaffPage() {
 
   const openAdd = () => {
     setEditingEmployee(null);
-    setForm({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active' });
+    setForm({ name: '', role: '牙助', phone: '', department: '', email: '', status: 'Active', workingHours: 0, unavailableDays: [] });
     setShowModal(true);
   };
 
   const openEdit = (emp) => {
     setEditingEmployee(emp);
-    setForm({ name: emp.name, role: emp.role, phone: emp.phone, department: emp.department, email: emp.email, status: emp.status });
+    setForm({ name: emp.name, role: emp.role, phone: emp.phone, department: emp.department, email: emp.email, status: emp.status, workingHours: emp.workingHours || 0, unavailableDays: emp.unavailableDays || [] });
     setShowModal(true);
   };
 
@@ -126,7 +127,7 @@ export default function StaffPage() {
                 <tr key={emp._id}>
                   <td>
                     <div className="emp-name-cell">
-                      <div className="emp-avatar" style={{ background: ROLE_COLORS[emp.role] || '#3b82f6' }}>
+                      <div className="emp-avatar" style={{ background: emp.color || '#3b82f6' }}>
                         {emp.initials || emp.name.charAt(0)}
                       </div>
                       <div>
@@ -185,6 +186,7 @@ export default function StaffPage() {
                   <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required>
                     <option value="牙助">牙助</option>
                     <option value="櫃台">櫃台</option>
+                    <option value="牙助+櫃台">牙助+櫃台</option>
                   </select>
                 </div>
               </div>
@@ -210,6 +212,34 @@ export default function StaffPage() {
                     <option value="On Leave">On Leave</option>
                     <option value="Inactive">Inactive</option>
                   </select>
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label>Working Hours/Month 每月工時 *</label>
+                  <input type="number" min="1" value={form.workingHours} onChange={(e) => setForm({ ...form, workingHours: Number(e.target.value) })} required />
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Unavailable Days 不可上班日</label>
+                <div className="weekday-checkboxes">
+                  {WEEKDAYS.map(day => (
+                    <label key={day} className={`weekday-checkbox ${form.unavailableDays.includes(day) ? 'checked' : ''}`}>
+                      <input
+                        type="checkbox"
+                        checked={form.unavailableDays.includes(day)}
+                        onChange={() => {
+                          setForm(prev => ({
+                            ...prev,
+                            unavailableDays: prev.unavailableDays.includes(day)
+                              ? prev.unavailableDays.filter(d => d !== day)
+                              : [...prev.unavailableDays, day]
+                          }));
+                        }}
+                      />
+                      {day.slice(0, 3)}
+                    </label>
+                  ))}
                 </div>
               </div>
               <div className="form-actions">
