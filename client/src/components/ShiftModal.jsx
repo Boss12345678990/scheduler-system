@@ -33,11 +33,11 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
   };
 
   const handleSave = async () => {
-    // Validate: surgery shifts must have at least one 牙助
+    // Validate: surgery shifts must have at least two 牙助
     for (const { key, label } of SHIFT_TYPES) {
       if (surgery[key]) {
         const shiftEmpIds = shifts[key];
-        const numberofYazhu = employees.filter(e => shiftEmpIds.includes(e._id) && e.role === '牙助').length;
+        const numberofYazhu = employees.filter(e => shiftEmpIds.includes(e._id) && (e.role === '牙助' || e.role === '牙助+櫃台')).length;
         if (numberofYazhu < 2) {
           alert(`${label} 有開刀，必須至少安排兩位牙助！`);
           return;
@@ -59,7 +59,7 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content shift-modal" onClick={e => e.stopPropagation()}>
         <h2>分配 {date} 的排班</h2>
-        <p className="shift-modal-subtitle">Assign shifts for {date}</p>
+        <p className="shift-modal-subtitle">指定 {date} 的班次</p>
 
         <div className="day-type-toggle">
           <label className={`day-type-option ${dayType === 'working' ? 'active' : ''}`}>
@@ -100,15 +100,16 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
                   </label>
                 </div>
                 <div className="shift-employee-groups">
-                  {['牙助', '櫃台'].map(role => {
+                  {['牙助', '櫃台', '牙助+櫃台'].map(role => {
                     const roleEmps = employees.filter(e => e.status === 'Active' && e.role === role);
                     if (roleEmps.length === 0) return null;
-                    const roleColor = role === '牙助' ? '#3b82f6' : '#ec4899';
+                    const roleColor = roleEmps[0]?.color || '#3b82f6';
                     return (
                       <div key={role} className="shift-role-group">
                         <span className="shift-role-label" style={{ color: roleColor }}>{role}</span>
                         <div className="shift-employee-list">
                           {roleEmps.map(emp => {
+                            const empColor = emp.color || '#3b82f6';
                             const isSelected = shifts[key].includes(emp._id);
                             return (
                               <button
@@ -117,8 +118,8 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
                                 onClick={() => toggleEmployee(key, emp._id)}
                                 title={emp.name}
                                 style={isSelected
-                                  ? { background: roleColor, borderColor: roleColor, color: 'white' }
-                                  : { background: `${roleColor}15`, borderColor: `${roleColor}40`, color: roleColor }}
+                                  ? { background: empColor, borderColor: empColor, color: 'white' }
+                                  : { background: `${empColor}15`, borderColor: `${empColor}40`, color: empColor }}
                               >
                                 <span className="shift-emp-initials">{emp.initials || emp.name.charAt(0)}</span>
                                 <span className="shift-emp-name">{emp.name}</span>
@@ -130,7 +131,7 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
                     );
                   })}
                   {employees.filter(e => e.status === 'Active').length === 0 && (
-                    <p className="no-employees">No active employees. Add employees first.</p>
+                    <p className="no-employees">沒有可用的員工，請先新增員工。</p>
                   )}
                 </div>
               </div>
@@ -139,7 +140,7 @@ export default function ShiftModal({ date, schedule, employees, onClose }) {
         )}
 
         <div className="shift-modal-actions">
-          <button className="btn btn-secondary" onClick={onClose}>Cancel</button>
+          <button className="btn btn-secondary" onClick={onClose}>取消 Cancel</button>
           <button className="btn btn-primary" onClick={handleSave} disabled={saving}>
             {saving ? <span className="spinner" /> : '確認 (Confirm)'}
           </button>

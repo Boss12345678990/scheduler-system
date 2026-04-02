@@ -17,6 +17,34 @@ async function getOrCreateHistory(userId) {
   return history;
 }
 
+// Operating hours config for computing shift durations
+const SHIFT_HOURS = {
+  0: {}, // Sunday - closed
+  1: { afternoon: 3.5, night: 1.5 }, // Monday
+  2: { morning: 2.5, afternoon: 3.75 }, // Tuesday
+  3: {}, // Wednesday - closed
+  4: { afternoon: 2.5, night: 1.5 }, // Thursday
+  5: { morning: 2.5, afternoon: 3.75 }, // Friday
+  6: { morning: 2.5, afternoon: 2 }, // Saturday
+};
+
+// Helper: compute assigned hours for an employee from schedules
+function computeAssignedHours(empId, schedules, employees) {
+  let total = 0;
+  const idStr = empId.toString();
+  schedules.forEach(s => {
+    if (s.dayType === 'dayoff') return;
+    const dayOfWeek = new Date(s.date).getUTCDay();
+    const dayHours = SHIFT_HOURS[dayOfWeek] || {};
+    ['morning', 'afternoon', 'night'].forEach(shift => {
+      if (s.shifts[shift].some(e => e._id.toString() === idStr)) {
+        total += dayHours[shift] || 2;
+      }
+    });
+  });
+  return total;
+}
+
 // Helper: build system context about clinic
 async function buildSystemContext(userId) {
   const employees = await Employee.find({ createdBy: userId });
@@ -28,10 +56,22 @@ async function buildSystemContext(userId) {
     date: { $gte: startOfMonth, $lte: endOfMonth },
   }).populate('shifts.morning shifts.afternoon shifts.night', 'name role');
 
+  // Compute hours info for each employee
+  const empHoursInfo = employees.map(e => {
+    const assigned = computeAssignedHours(e._id, schedules, employees);
+    const remaining = Math.max(0, (e.workingHours || 0) - assigned);
+    return `- ${e.name} (ID: ${e._id}, role: ${e.role}, status: ${e.status}, workingHours/month: ${e.workingHours || 0}hrs, assigned: ${assigned.toFixed(1)}hrs, remaining: ${remaining.toFixed(1)}hrs${e.unavailableDays?.length ? ', unavailable: ' + e.unavailableDays.join(', ') : ''})`;
+  }).join('\n');
+
   return `You are an AI scheduling assistant for a clinic. You can read data and MODIFY schedules using the tools provided.
 
 EMPLOYEES (${employees.length} total):
-${employees.map(e => `- ${e.name} (ID: ${e._id}, role: ${e.role}, status: ${e.status})`).join('\n')}
+${empHoursInfo}
+
+ROLE TYPES:
+- 牙助: Dental assistant (primary)
+- 櫃台: Front desk (primary)
+- 牙助+櫃台: Can work as both dental assistant and front desk
 
 CURRENT MONTH SCHEDULES (${schedules.length} days scheduled):
 ${schedules.map(s => {
@@ -50,10 +90,12 @@ RULES:
 - Shifts are: morning, afternoon, night. Each shift takes an array of employee IDs.
 - A date can be "working" or "dayoff" type.
 - Use get_employees to look up employee IDs if needed.
+- Use get_employee_hours to get detailed working hours info for any month.
 - Use get_schedules to check existing schedules for a date range.
 - Use set_schedule to create or update a schedule for a specific date.
 - Use set_schedules_bulk to set the same schedule for many dates at once (e.g. marking every 26th as day off). ALWAYS prefer this over calling set_schedule repeatedly.
 - When the user asks to make a change, call the tool IMMEDIATELY. Do not ask for confirmation unless the request is ambiguous.
+- When answering about remaining hours, always use the get_employee_hours tool for the most accurate data.
 - Be friendly, helpful, and respond in the same language the user uses.`;
 }
 
@@ -156,6 +198,20 @@ const tools = [
     },
   },
   {
+    name: 'get_employee_hours',
+    description: 'Get detailed working hours breakdown for all employees in a specific month. Returns each employee\'s workingHours/month target, assigned hours, remaining hours, and unavailable days. Use this when the user asks about remaining hours, workload, or who needs more shifts.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        month: {
+          type: 'string',
+          description: 'Month in YYYY-MM format, e.g. 2026-04',
+        },
+      },
+      required: ['month'],
+    },
+  },
+  {
     name: 'print_schedule',
     description: 'Navigate to the schedule page for a given month and trigger the browser print dialog. Use when the user asks to print a schedule.',
     input_schema: {
@@ -181,6 +237,8 @@ async function executeTool(toolName, toolInput, userId) {
         name: e.name,
         role: e.role,
         status: e.status,
+        workingHours: e.workingHours || 0,
+        unavailableDays: e.unavailableDays || [],
       }))) };
     }
 
@@ -278,6 +336,33 @@ async function executeTool(toolName, toolInput, userId) {
         results.push({ date: dateStr, success: true });
       }
       return { result: JSON.stringify({ success: true, count: results.length, dates: results }) };
+    }
+
+    case 'get_employee_hours': {
+      const [yr, mn] = toolInput.month.split('-').map(Number);
+      const s = new Date(Date.UTC(yr, mn - 1, 1));
+      const e = new Date(Date.UTC(yr, mn, 0));
+      const emps = await Employee.find({ createdBy: userId });
+      const scheds = await Schedule.find({
+        createdBy: userId,
+        date: { $gte: s, $lte: e },
+      }).populate('shifts.morning shifts.afternoon shifts.night', 'name role');
+
+      const hoursData = emps.map(emp => {
+        const assigned = computeAssignedHours(emp._id, scheds, emps);
+        const remaining = Math.max(0, (emp.workingHours || 0) - assigned);
+        return {
+          id: emp._id.toString(),
+          name: emp.name,
+          role: emp.role,
+          workingHoursPerMonth: emp.workingHours || 0,
+          assignedHours: parseFloat(assigned.toFixed(1)),
+          remainingHours: parseFloat(remaining.toFixed(1)),
+          unavailableDays: emp.unavailableDays || [],
+          status: emp.status,
+        };
+      });
+      return { result: JSON.stringify({ month: toolInput.month, employees: hoursData }) };
     }
 
     case 'print_schedule': {

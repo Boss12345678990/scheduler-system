@@ -6,8 +6,11 @@ const connectDB = require('./config/db');
 // Load env vars
 dotenv.config();
 
-// Connect to database
-connectDB();
+// Connect to database and sync role colors
+connectDB().then(async () => {
+  const Employee = require('./models/Employee');
+  await Employee.syncColors();
+});
 
 const app = express();
 

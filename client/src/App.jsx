@@ -8,7 +8,6 @@ import SchedulePage from './pages/SchedulePage';
 import StaffPage from './pages/StaffPage';
 import EmployeeProfilePage from './pages/EmployeeProfilePage';
 import AIAgentPage from './pages/AIAgentPage';
-import SettingsPage from './pages/SettingsPage';
 import './App.css';
 
 function AppLayout({ children }) {
@@ -58,11 +57,6 @@ function AppRoutes() {
       <Route path="/ai" element={
         <PrivateRoute>
           <AppLayout><AIAgentPage /></AppLayout>
-        </PrivateRoute>
-      } />
-      <Route path="/settings" element={
-        <PrivateRoute>
-          <AppLayout><SettingsPage /></AppLayout>
         </PrivateRoute>
       } />
 

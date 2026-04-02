@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FiChevronLeft, FiChevronRight, FiPrinter, FiEdit2, FiBarChart2 } from 'react-icons/fi';
+import { FiChevronLeft, FiChevronRight, FiPrinter, FiEdit2, FiBarChart2, FiZap, FiTrash2 } from 'react-icons/fi';
 import api from '../services/api';
 import ShiftModal from '../components/ShiftModal';
 import './SchedulePage.css';
@@ -23,6 +23,7 @@ export default function SchedulePage() {
   const [employees, setEmployees] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [generating, setGenerating] = useState(false);
   const navigate = useNavigate();
 
   const year = currentDate.getFullYear();
@@ -104,6 +105,35 @@ export default function SchedulePage() {
     navigate('/ai', { state: { autoSend: '總結工作量' } });
   };
 
+  const handleGenerateSchedule = async () => {
+    if (!window.confirm(`確定要自動排班 ${monthLabel} 嗎？這將覆蓋本月現有的排班。`)) return;
+    setGenerating(true);
+    try {
+      const res = await api.post('/schedules/generate', { month: monthStr });
+      let msg = res.data.message;
+      if (res.data.warnings && res.data.warnings.length > 0) {
+        msg += '\n\n⚠️ Warnings:\n' + res.data.warnings.join('\n');
+      }
+      alert(msg);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error generating schedule');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const handleClearMonth = async () => {
+    if (!window.confirm(`確定要清除 ${monthLabel} 的所有排班嗎？此操作無法復原。`)) return;
+    try {
+      const res = await api.delete('/schedules/clear', { params: { month: monthStr } });
+      alert(res.data.message);
+      fetchData();
+    } catch (err) {
+      alert(err.response?.data?.message || 'Error clearing schedules');
+    }
+  };
+
   const today = new Date();
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -112,13 +142,13 @@ export default function SchedulePage() {
       {/* Calendar Header */}
       <div className="calendar-header">
         <div className="calendar-nav">
-          <button className="btn btn-secondary btn-sm" onClick={goToday}>Today</button>
+          <button className="btn btn-secondary btn-sm" onClick={goToday}>今天 Today</button>
           <button className="btn btn-secondary btn-sm" onClick={goPrev}><FiChevronLeft /></button>
           <button className="btn btn-secondary btn-sm" onClick={goNext}><FiChevronRight /></button>
         </div>
         <h2 className="calendar-month-title">{monthLabel}</h2>
         <div className="calendar-view-toggles">
-          <button className="btn btn-secondary btn-sm active">Month</button>
+          <button className="btn btn-secondary btn-sm active">月 Month</button>
         </div>
       </div>
 
@@ -189,6 +219,12 @@ export default function SchedulePage() {
         </button>
         <button className="btn btn-secondary" onClick={() => navigate('/staff')}>
           <FiEdit2 /> 編輯員工 / EDIT EMPLOYEES
+        </button>
+        <button className="btn btn-danger" onClick={handleClearMonth}>
+          <FiTrash2 /> 清除排班 / CLEAR ALL
+        </button>
+        <button className="btn btn-primary" onClick={handleGenerateSchedule} disabled={generating}>
+          <FiZap /> {generating ? '生成中...' : '自動排班 / GENERATE SCHEDULE'}
         </button>
         <button className="btn btn-primary" onClick={handleGenerateSummary}>
           <FiBarChart2 /> 總結工作量 / GENERATE WORK SUMMARY

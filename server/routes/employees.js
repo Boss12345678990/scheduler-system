@@ -81,7 +81,7 @@ router.get('/:id', async (req, res) => {
 // POST /api/employees — create employee
 router.post('/', async (req, res) => {
   try {
-    const { name, role, phone, department, email, status } = req.body;
+    const { name, role, phone, department, email, status, workingHours, unavailableDays } = req.body;
 
     if (!name || !role) {
       return res.status(400).json({ message: 'Name and role are required' });
@@ -94,6 +94,8 @@ router.post('/', async (req, res) => {
       department: department || '',
       email: email || '',
       status: status || 'Active',
+      workingHours: workingHours || 0,
+      unavailableDays: unavailableDays || [],
       createdBy: req.user._id,
     });
 
@@ -115,7 +117,7 @@ router.put('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Employee not found' });
     }
 
-    const fields = ['name', 'role', 'phone', 'department', 'email', 'status'];
+    const fields = ['name', 'role', 'phone', 'department', 'email', 'status', 'workingHours', 'unavailableDays'];
     fields.forEach((field) => {
       if (req.body[field] !== undefined) {
         employee[field] = req.body[field];

@@ -23,10 +23,9 @@
 }
 
 .logo-icon {
-  font-size: 28px;
-  color: var(--accent-blue);
-  background: rgba(59, 130, 246, 0.1);
-  padding: 6px;
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
   border-radius: var(--radius-md);
 }
 

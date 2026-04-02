@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiSend, FiPlus } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi2';
+import ReactMarkdown from 'react-markdown';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './AIAgentPage.css';
@@ -36,7 +37,7 @@ export default function AIAgentPage() {
     } catch (err) {
       setMessages(prev => [...prev, {
         role: 'assistant',
-        content: 'Sorry, I encountered an error. Please try again.',
+        content: '抱歉，發生錯誤，請再試一次。',
         timestamp: new Date(),
       }]);
     } finally {
@@ -112,12 +113,12 @@ export default function AIAgentPage() {
       <div className="ai-header">
         <div className="ai-header-left">
           <HiOutlineSparkles className="ai-header-icon" />
-          <h1>AI Agent Chat</h1>
-          <span className="badge badge-online">ONLINE</span>
+          <h1>AI 助理對話</h1>
+          <span className="badge badge-online">線上</span>
         </div>
         <div className="ai-header-right">
           <button className="btn-new-chat" onClick={handleNewChat} disabled={sending}>
-            <FiPlus /> New Chat
+            <FiPlus /> 新對話
           </button>
         </div>
       </div>
@@ -127,12 +128,12 @@ export default function AIAgentPage() {
         {messages.length === 0 && (
           <div className="ai-welcome">
             <HiOutlineSparkles className="ai-welcome-icon" />
-            <h2>Welcome to AI Assistant</h2>
-            <p>I can help you with scheduling, answer questions about the system, and provide work summaries.</p>
+            <h2>歡迎使用 AI 助理</h2>
+            <p>我可以幫您排班、回答系統相關問題，以及提供工作摘要。</p>
             <div className="ai-suggestions">
-              <button onClick={() => updateInput('Show me a summary of this month\'s schedule')}>📊 Monthly summary</button>
-              <button onClick={() => updateInput('Are there any scheduling conflicts?')}>⚠️ Check conflicts</button>
-              <button onClick={() => updateInput('How do I use the scheduling system?')}>❓ How to use</button>
+              <button onClick={() => updateInput('顯示本月排班摘要')}>📊 月度摘要</button>
+              <button onClick={() => updateInput('有沒有排班衝突？')}>⚠️ 檢查衝突</button>
+              <button onClick={() => updateInput('如何使用排班系統？')}>❓ 使用說明</button>
             </div>
           </div>
         )}
@@ -146,11 +147,13 @@ export default function AIAgentPage() {
             )}
             <div className="message-body">
               <div className="message-meta">
-                <span className="message-sender">{msg.role === 'assistant' ? 'AI Assistant' : 'You'}</span>
+                <span className="message-sender">{msg.role === 'assistant' ? 'AI 助理' : '你'}</span>
                 <span className="message-time">{formatTime(msg.timestamp)}</span>
               </div>
               <div className={`message-bubble ${msg.role}`}>
-                {msg.content}
+                {msg.role === 'assistant'
+                  ? <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  : msg.content}
               </div>
             </div>
             {msg.role === 'user' && (
@@ -180,7 +183,7 @@ export default function AIAgentPage() {
         <div className="ai-input-wrapper">
           <input
             type="text"
-            placeholder="Type a message or ask for help with scheduling..."
+            placeholder="輸入訊息或詢問排班相關問題..."
             value={input}
             onChange={(e) => updateInput(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -190,7 +193,7 @@ export default function AIAgentPage() {
             <FiSend />
           </button>
         </div>
-        <p className="ai-disclaimer">AI AGENT CAN MAKE MISTAKES. VERIFY IMPORTANT INFORMATION.</p>
+        <p className="ai-disclaimer">AI 助理可能會出錯，請驗證重要資訊。</p>
       </div>
     </div>
   );
