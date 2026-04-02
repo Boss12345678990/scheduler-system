@@ -33,15 +33,15 @@ export default function RegisterPage() {
           <div className="auth-logo">
             <span className="auth-logo-icon">⚡</span>
           </div>
-          <h1>Create your account</h1>
-          <p>Get started with WorkSync</p>
+          <h1>建立您的帳號</h1>
+          <p>開始使用 WorkSync</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="auth-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="name">姓名 Full Name</label>
             <input
               id="name"
               type="text"
@@ -54,7 +54,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">信箱 Email</label>
             <input
               id="email"
               type="email"
@@ -66,25 +66,25 @@ export default function RegisterPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">密碼 Password</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Min 6 characters"
+              placeholder="至少 6 個字元"
               required
               minLength={6}
             />
           </div>
 
           <button type="submit" className="btn btn-primary auth-btn" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Create Account'}
+            {loading ? <span className="spinner" /> : '建立帳號 Create Account'}
           </button>
         </form>
 
         <p className="auth-footer">
-          Already have an account? <Link to="/login">Sign in</Link>
+          已有帳號？ <Link to="/login">登入</Link>
         </p>
       </div>
     </div>

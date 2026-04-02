@@ -32,15 +32,15 @@ export default function LoginPage() {
           <div className="auth-logo">
             <span className="auth-logo-icon">⚡</span>
           </div>
-          <h1>Welcome back</h1>
-          <p>Sign in to your WorkSync account</p>
+          <h1>歡迎回來</h1>
+          <p>登入您的 WorkSync 帳號</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
           {error && <div className="auth-error">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">信箱 Email</label>
             <input
               id="email"
               type="email"
@@ -53,7 +53,7 @@ export default function LoginPage() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">密碼 Password</label>
             <input
               id="password"
               type="password"
@@ -65,12 +65,12 @@ export default function LoginPage() {
           </div>
 
           <button type="submit" className="btn btn-primary auth-btn" disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Sign In'}
+            {loading ? <span className="spinner" /> : '登入 Sign In'}
           </button>
         </form>
 
         <p className="auth-footer">
-          Don't have an account? <Link to="/register">Create one</Link>
+          還沒有帳號？ <Link to="/register">建立帳號</Link>
         </p>
       </div>
     </div>

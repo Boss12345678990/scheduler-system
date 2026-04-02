@@ -151,8 +151,8 @@
 
 .employee-badge {
   border-radius: 999px;
-  padding: 2px 8px;
-  font-size: 12px;
+  padding: 3px 10px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
   display: flex;

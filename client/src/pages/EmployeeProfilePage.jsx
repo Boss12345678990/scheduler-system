@@ -35,7 +35,7 @@ export default function EmployeeProfilePage() {
   return (
     <div className="profile-page">
       <button className="back-btn" onClick={() => navigate('/staff')}>
-        <FiArrowLeft /> Back to Staff
+        <FiArrowLeft /> 返回員工列表 Back to Staff
       </button>
 
       <div className="profile-card">
@@ -55,22 +55,22 @@ export default function EmployeeProfilePage() {
           <div className="detail-item">
             <FiBriefcase className="detail-icon" />
             <div>
-              <p className="detail-label">Role</p>
+              <p className="detail-label">角色 Role</p>
               <p className="detail-value">{employee.role}</p>
             </div>
           </div>
           <div className="detail-item">
             <FiPhone className="detail-icon" />
             <div>
-              <p className="detail-label">Phone</p>
-              <p className="detail-value">{employee.phone || 'Not set'}</p>
+              <p className="detail-label">電話 Phone</p>
+              <p className="detail-value">{employee.phone || '未設定'}</p>
             </div>
           </div>
           {employee.department && (
             <div className="detail-item">
               <FiBriefcase className="detail-icon" />
               <div>
-                <p className="detail-label">Department</p>
+                <p className="detail-label">部門 Department</p>
                 <p className="detail-value">{employee.department}</p>
               </div>
             </div>
@@ -79,7 +79,7 @@ export default function EmployeeProfilePage() {
             <FiClock className="detail-icon" />
             <div>
               <p className="detail-label">Working Hours/Month 每月工時</p>
-              <p className="detail-value">{employee.workingHours || 0} hrs/month</p>
+              <p className="detail-value">{employee.workingHours || 0} 小時/月</p>
             </div>
           </div>
           {employee.unavailableDays && employee.unavailableDays.length > 0 && (
@@ -98,7 +98,7 @@ export default function EmployeeProfilePage() {
             <FiCalendar className="stat-icon" />
             <div>
               <p className="stat-number">{employee.daysWorkedThisMonth || 0}</p>
-              <p className="stat-label">Days worked in {monthName}</p>
+              <p className="stat-label">{monthName} 出勤天數</p>
             </div>
           </div>
         </div>

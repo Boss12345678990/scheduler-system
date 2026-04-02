@@ -20,7 +20,7 @@ export default function Sidebar() {
           <HiOutlineSwitchHorizontal className="logo-icon" />
           <div>
             <h1 className="logo-text">WorkSync</h1>
-            <p className="logo-subtitle">Admin Portal</p>
+            <p className="logo-subtitle">管理後台 Admin Portal</p>
           </div>
         </div>
       </div>
@@ -28,21 +28,15 @@ export default function Sidebar() {
       <nav className="sidebar-nav">
         <NavLink to="/schedule" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <FiCalendar />
-          <span>Schedule</span>
+          <span>排班表 Schedule</span>
         </NavLink>
         <NavLink to="/staff" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <FiUsers />
-          <span>Staff</span>
+          <span>員工 Staff</span>
         </NavLink>
         <NavLink to="/ai" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
           <FiMessageSquare />
-          <span>AI Agent</span>
-        </NavLink>
-
-        <div className="nav-section-label">SYSTEM</div>
-        <NavLink to="/settings" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
-          <FiSettings />
-          <span>Settings</span>
+          <span>AI 助理 Agent</span>
         </NavLink>
       </nav>
 
@@ -56,7 +50,7 @@ export default function Sidebar() {
             <p className="user-email">{user?.email || ''}</p>
           </div>
         </div>
-        <button className="logout-btn" onClick={handleLogout} title="Logout">
+        <button className="logout-btn" onClick={handleLogout} title="登出 Logout">
           <FiLogOut />
         </button>
       </div>

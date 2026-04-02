@@ -106,7 +106,7 @@ export default function SchedulePage() {
   };
 
   const handleGenerateSchedule = async () => {
-    if (!window.confirm(`Auto-generate schedule for ${monthLabel}? This will overwrite existing schedules for this month.`)) return;
+    if (!window.confirm(`確定要自動排班 ${monthLabel} 嗎？這將覆蓋本月現有的排班。`)) return;
     setGenerating(true);
     try {
       const res = await api.post('/schedules/generate', { month: monthStr });
@@ -124,7 +124,7 @@ export default function SchedulePage() {
   };
 
   const handleClearMonth = async () => {
-    if (!window.confirm(`Clear ALL schedules for ${monthLabel}? This cannot be undone.`)) return;
+    if (!window.confirm(`確定要清除 ${monthLabel} 的所有排班嗎？此操作無法復原。`)) return;
     try {
       const res = await api.delete('/schedules/clear', { params: { month: monthStr } });
       alert(res.data.message);
@@ -142,13 +142,13 @@ export default function SchedulePage() {
       {/* Calendar Header */}
       <div className="calendar-header">
         <div className="calendar-nav">
-          <button className="btn btn-secondary btn-sm" onClick={goToday}>Today</button>
+          <button className="btn btn-secondary btn-sm" onClick={goToday}>今天 Today</button>
           <button className="btn btn-secondary btn-sm" onClick={goPrev}><FiChevronLeft /></button>
           <button className="btn btn-secondary btn-sm" onClick={goNext}><FiChevronRight /></button>
         </div>
         <h2 className="calendar-month-title">{monthLabel}</h2>
         <div className="calendar-view-toggles">
-          <button className="btn btn-secondary btn-sm active">Month</button>
+          <button className="btn btn-secondary btn-sm active">月 Month</button>
         </div>
       </div>
 
@@ -236,10 +236,7 @@ export default function SchedulePage() {
         <ShiftModal
           date={selectedDate}
           schedule={getScheduleForDate(selectedDate)}
-          employees={employees.filter(emp => {
-            const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date(selectedDate + 'T00:00:00').getDay()];
-            return !(emp.unavailableDays || []).includes(dayName);
-          })}
+          employees={employees}
           onClose={handleModalClose}
         />
       )}

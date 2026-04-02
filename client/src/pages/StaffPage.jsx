@@ -81,17 +81,17 @@ export default function StaffPage() {
   return (
     <div className="staff-page">
       <div className="staff-header">
-        <div className="staff-breadcrumb">Organization &gt; <strong>Staff</strong></div>
+        <div className="staff-breadcrumb">組織 Organization &gt; <strong>員工 Staff</strong></div>
         <div className="staff-header-actions">
           <button className="btn btn-primary" onClick={openAdd}>
-            <FiPlus /> Add Employee
+            <FiPlus /> 新增員工 Add Employee
           </button>
         </div>
       </div>
 
       <div className="staff-title-section">
-        <h1>Staff Directory</h1>
-        <p>Showing {total} registered team members across all departments.</p>
+        <h1>員工目錄 Staff Directory</h1>
+        <p>顯示 {total} 位已註冊的團隊成員。</p>
       </div>
 
       <div className="staff-filters">
@@ -99,7 +99,7 @@ export default function StaffPage() {
           <FiSearch className="search-icon" />
           <input
             type="text"
-            placeholder="Search by name, position, or email..."
+            placeholder="搜尋姓名、職位或信箱..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           />
@@ -110,18 +110,18 @@ export default function StaffPage() {
         <table className="staff-table">
           <thead>
             <tr>
-              <th>EMPLOYEE NAME</th>
-              <th>POSITION / ROLE</th>
-              <th>CONTACT DETAILS</th>
-              <th>STATUS</th>
-              <th>ACTIONS</th>
+              <th>員工姓名 NAME</th>
+              <th>職位 ROLE</th>
+              <th>聯絡方式 CONTACT</th>
+              <th>狀態 STATUS</th>
+              <th>操作 ACTIONS</th>
             </tr>
           </thead>
           <tbody>
             {loading ? (
               <tr><td colSpan="5" className="table-loading"><div className="spinner" /></td></tr>
             ) : employees.length === 0 ? (
-              <tr><td colSpan="5" className="table-empty">No employees found. Add your first employee!</td></tr>
+              <tr><td colSpan="5" className="table-empty">找不到員工。請新增您的第一位員工！</td></tr>
             ) : (
               employees.map((emp) => (
                 <tr key={emp._id}>
@@ -147,9 +147,9 @@ export default function StaffPage() {
                   <td>{getStatusBadge(emp.status)}</td>
                   <td>
                     <div className="action-btns">
-                      <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/staff/${emp._id}`)}>View Profile</button>
-                      <button className="icon-btn" onClick={() => openEdit(emp)} title="Edit"><FiEdit2 /></button>
-                      <button className="icon-btn icon-btn-danger" onClick={() => handleDelete(emp._id)} title="Delete"><FiTrash2 /></button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => navigate(`/staff/${emp._id}`)}>檢視 View</button>
+                      <button className="icon-btn" onClick={() => openEdit(emp)} title="編輯 Edit"><FiEdit2 /></button>
+                      <button className="icon-btn icon-btn-danger" onClick={() => handleDelete(emp._id)} title="刪除 Delete"><FiTrash2 /></button>
                     </div>
                   </td>
                 </tr>
@@ -160,7 +160,7 @@ export default function StaffPage() {
       </div>
 
       <div className="staff-pagination">
-        <p className="pagination-info">Showing {((page - 1) * 8) + 1} to {Math.min(page * 8, total)} of {total} entries</p>
+        <p className="pagination-info">顯示第 {((page - 1) * 8) + 1} 至 {Math.min(page * 8, total)} 筆，共 {total} 筆</p>
         <div className="pagination-btns">
           <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><FiChevronLeft /></button>
           {Array.from({ length: pages }, (_, i) => i + 1).slice(0, 5).map(p => (
@@ -174,15 +174,15 @@ export default function StaffPage() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>{editingEmployee ? 'Edit Employee' : 'Add New Employee'}</h2>
+            <h2>{editingEmployee ? '編輯員工 Edit Employee' : '新增員工 Add New Employee'}</h2>
             <form onSubmit={handleSubmit} className="emp-form">
               <div className="form-row">
                 <div className="form-group">
-                  <label>Name *</label>
+                  <label>姓名 Name *</label>
                   <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
                 </div>
                 <div className="form-group">
-                  <label>Role *</label>
+                  <label>角色 Role *</label>
                   <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} required>
                     <option value="牙助">牙助</option>
                     <option value="櫃台">櫃台</option>
@@ -192,21 +192,21 @@ export default function StaffPage() {
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Phone</label>
+                  <label>電話 Phone</label>
                   <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
                 </div>
                 <div className="form-group">
-                  <label>Email</label>
+                  <label>信箱 Email</label>
                   <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label>Department</label>
+                  <label>部門 Department</label>
                   <input value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })} />
                 </div>
                 <div className="form-group">
-                  <label>Status</label>
+                  <label>狀態 Status</label>
                   <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value })}>
                     <option value="Active">Active</option>
                     <option value="On Leave">On Leave</option>
@@ -243,8 +243,8 @@ export default function StaffPage() {
                 </div>
               </div>
               <div className="form-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">{editingEmployee ? 'Save Changes' : 'Add Employee'}</button>
+                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>取消 Cancel</button>
+                <button type="submit" className="btn btn-primary">{editingEmployee ? '儲存 Save' : '新增 Add'}</button>
               </div>
             </form>
           </div>
