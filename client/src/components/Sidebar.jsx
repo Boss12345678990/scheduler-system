@@ -17,10 +17,10 @@ export default function Sidebar() {
     <aside className="sidebar">
       <div className="sidebar-header">
         <div className="sidebar-logo">
-          <HiOutlineSwitchHorizontal className="logo-icon" />
+          <img src="/foyacheng-logo.png" alt="Logo" className="logo-icon" />
           <div>
-            <h1 className="logo-text">WorkSync</h1>
-            <p className="logo-subtitle">管理後台 Admin Portal</p>
+            <h1 className="logo-text">OptiShift</h1>
+            <p className="logo-subtitle">智能排班系統</p>
           </div>
         </div>
       </div>

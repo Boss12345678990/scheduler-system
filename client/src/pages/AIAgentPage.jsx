@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { FiSend, FiPlus } from 'react-icons/fi';
 import { HiOutlineSparkles } from 'react-icons/hi2';
+import ReactMarkdown from 'react-markdown';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './AIAgentPage.css';
@@ -150,7 +151,9 @@ export default function AIAgentPage() {
                 <span className="message-time">{formatTime(msg.timestamp)}</span>
               </div>
               <div className={`message-bubble ${msg.role}`}>
-                {msg.content}
+                {msg.role === 'assistant'
+                  ? <ReactMarkdown>{msg.content}</ReactMarkdown>
+                  : msg.content}
               </div>
             </div>
             {msg.role === 'user' && (
