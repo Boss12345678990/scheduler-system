@@ -200,6 +200,7 @@
 
   .schedule-page {
     height: auto !important;
+    overflow: hidden !important;
     background: white !important;
   }
 
@@ -217,7 +218,9 @@
   }
 
   .calendar-grid {
-    overflow: visible !important;
+    flex: none !important;
+    overflow: hidden !important;
+    min-height: 0 !important;
   }
 
   .calendar-day-headers {
@@ -231,15 +234,22 @@
     padding: 8px !important;
   }
 
+  /* Fixed physical height so the grid always fits one landscape page,
+     independent of browser, paper size (A4/Letter) or print scale.
+     A4/Letter landscape usable height with 8mm margins is ~194mm;
+     reserving ~24mm for the month title + weekday header leaves ~165mm. */
   .calendar-cells {
     grid-auto-rows: 1fr !important;
+    min-height: 0 !important;
+    height: 165mm !important;
   }
 
   .calendar-cell {
     border: 1px solid #ccc !important;
     background: white !important;
-    min-height: 80px !important;
-    padding: 6px 8px !important;
+    min-height: 0 !important;
+    padding: 4px 6px !important;
+    overflow: hidden !important;
     page-break-inside: avoid;
   }
 
@@ -290,6 +300,6 @@
 
   @page {
     size: landscape;
-    margin: 10mm;
+    margin: 8mm;
   }
 }
