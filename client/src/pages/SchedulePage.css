@@ -178,128 +178,175 @@
   background: var(--bg-secondary);
 }
 
-/* Print styles */
+/* ============================================================
+   Print: scale-to-fit a single landscape page
+   ------------------------------------------------------------
+   The calendar can be any size (5 vs 6 week rows, many staff
+   badges per day), so a fixed CSS height can never guarantee one
+   page across machines. Instead `fitForPrint()` in SchedulePage.jsx
+   adds `print-mode` to <body>, measures the calendar, and applies a
+   single uniform transform on `.schedule-page` that shrinks it to
+   fit. These `body.print-mode` rules apply BOTH on screen during
+   that measurement AND during the actual print (the class stays set
+   across window.print()), so the measured layout equals the printed
+   one. Everything that affects size lives here.
+
+   `@page` is margin:0 so 1 CSS px maps to 1/96in of paper; the JS
+   page box (1056 x 793 px) fits inside both A4 and Letter landscape,
+   and the fixed-height, overflow:hidden box makes a 2nd page
+   physically impossible even if a browser ignores the transform.
+   ============================================================ */
 @media print {
+  @page {
+    size: landscape;
+    margin: 0;
+  }
+
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  body {
-    background: white !important;
-    color: #111 !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  /* Fallback for the rare browser that never fires `beforeprint`
+     (so `print-mode` was never added): at least don't print the dark
+     UI chrome. The calendar may not perfectly fit, but stays readable. */
+  body:not(.print-mode) {
+    background: #fff !important;
   }
-
-  .calendar-header .calendar-nav,
-  .calendar-header .calendar-view-toggles,
-  .calendar-footer {
+  body:not(.print-mode) .calendar-nav,
+  body:not(.print-mode) .calendar-view-toggles,
+  body:not(.print-mode) .calendar-footer {
     display: none !important;
   }
+}
 
-  .schedule-page {
-    height: auto !important;
-    overflow: hidden !important;
-    background: white !important;
-  }
+/* The single-page box + print appearance, driven by JS measurement. */
+body.print-mode {
+  width: 1056px;
+  height: 793px;
+  overflow: hidden;
+  margin: 0;
+  background: #fff;
+}
 
-  .calendar-header {
-    border-bottom: 2px solid #333 !important;
-    background: white !important;
-    justify-content: center !important;
-    padding: 10px 0 !important;
-  }
+body.print-mode #root,
+body.print-mode .app-layout,
+body.print-mode .app-main {
+  display: block !important;
+  width: 1056px !important;
+  height: 793px !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
 
-  .calendar-month-title {
-    color: #111 !important;
-    font-size: 24px !important;
-    text-align: center !important;
-  }
+body.print-mode .sidebar,
+body.print-mode .calendar-nav,
+body.print-mode .calendar-view-toggles,
+body.print-mode .calendar-footer {
+  display: none !important;
+}
 
-  .calendar-grid {
-    flex: none !important;
-    overflow: hidden !important;
-    min-height: 0 !important;
-  }
+/* The element we scale. Its `width` + `transform` are set inline by JS. */
+body.print-mode .schedule-page {
+  display: block !important;
+  height: auto !important;
+  overflow: visible !important;
+  background: #fff !important;
+  color: #111 !important;
+  padding: 0 !important;
+}
 
-  .calendar-day-headers {
-    border-bottom: 2px solid #333 !important;
-    background: #f0f0f0 !important;
-  }
+body.print-mode .calendar-header {
+  border-bottom: 2px solid #333 !important;
+  background: #fff !important;
+  justify-content: center !important;
+  padding: 6px 0 !important;
+}
 
-  .day-header {
-    color: #333 !important;
-    font-size: 13px !important;
-    padding: 8px !important;
-  }
+body.print-mode .calendar-month-title {
+  color: #111 !important;
+  font-size: 24px !important;
+  text-align: center !important;
+}
 
-  /* Fixed physical height so the grid always fits one landscape page,
-     independent of browser, paper size (A4/Letter) or print scale.
-     A4/Letter landscape usable height with 8mm margins is ~194mm;
-     reserving ~24mm for the month title + weekday header leaves ~165mm. */
-  .calendar-cells {
-    grid-auto-rows: 1fr !important;
-    min-height: 0 !important;
-    height: 165mm !important;
-  }
+body.print-mode .calendar-grid {
+  display: block !important;
+  flex: none !important;
+  overflow: visible !important;
+  min-height: 0 !important;
+}
 
-  .calendar-cell {
-    border: 1px solid #ccc !important;
-    background: white !important;
-    min-height: 0 !important;
-    padding: 4px 6px !important;
-    overflow: hidden !important;
-    page-break-inside: avoid;
-  }
+body.print-mode .calendar-day-headers {
+  border-bottom: 2px solid #333 !important;
+  background: #f0f0f0 !important;
+}
 
-  .calendar-cell.today {
-    background: #eef4ff !important;
-  }
+body.print-mode .day-header {
+  color: #333 !important;
+  font-size: 13px !important;
+  padding: 8px !important;
+}
 
-  .calendar-cell.day-off {
-    background: #fef9e7 !important;
-  }
+/* Rows size to their content; the JS transform handles fitting. */
+body.print-mode .calendar-cells {
+  grid-auto-rows: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+}
 
-  .calendar-cell.other-month {
-    opacity: 0.3 !important;
-  }
+/* min-height floor so light months fill the page vertically; heavier months
+   grow past it and the JS transform scales everything down to fit. */
+body.print-mode .calendar-cell {
+  border: 1px solid #ccc !important;
+  background: #fff !important;
+  min-height: 105px !important;
+  padding: 4px 6px !important;
+  overflow: hidden !important;
+}
 
-  .cell-day {
-    color: #111 !important;
-    font-size: 15px !important;
-  }
+body.print-mode .calendar-cell.today {
+  background: #eef4ff !important;
+}
 
-  .calendar-cell.today .cell-day {
-    color: #2563eb !important;
-  }
+body.print-mode .calendar-cell.day-off {
+  background: #fef9e7 !important;
+}
 
-  .day-off-label {
-    color: #666 !important;
-  }
+body.print-mode .calendar-cell.other-month {
+  opacity: 0.3 !important;
+}
 
-  .shift-label {
-    color: #333 !important;
-    font-size: 13px !important;
-  }
+body.print-mode .cell-day {
+  color: #111 !important;
+  font-size: 15px !important;
+}
 
-  .shift-row + .shift-row {
-    border-top: 1px solid #ddd !important;
-  }
+body.print-mode .calendar-cell.today .cell-day {
+  color: #2563eb !important;
+}
 
-  .employee-badge {
-    color: white !important;
-    font-size: 11px !important;
-    padding: 1px 6px !important;
-  }
+body.print-mode .day-off-label {
+  color: #666 !important;
+}
 
-  .surgery-tag {
-    color: #ef4444 !important;
-    font-size: 12px !important;
-  }
+body.print-mode .shift-label {
+  color: #333 !important;
+  font-size: 13px !important;
+}
 
-  @page {
-    size: landscape;
-    margin: 8mm;
-  }
+body.print-mode .shift-row + .shift-row {
+  border-top: 1px solid #ddd !important;
+}
+
+body.print-mode .employee-badge {
+  color: #fff !important;
+  font-size: 11px !important;
+  padding: 1px 6px !important;
+}
+
+body.print-mode .surgery-tag {
+  color: #ef4444 !important;
+  font-size: 12px !important;
 }
