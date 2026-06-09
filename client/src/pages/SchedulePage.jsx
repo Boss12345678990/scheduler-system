@@ -11,6 +11,7 @@ const SHIFT_LABELS = { morning: '早', afternoon: '午', night: '晚' };
 export default function SchedulePage() {
   const location = useLocation();
   const printMonthHandled = useRef(false);
+  const pageRef = useRef(null);
   const [currentDate, setCurrentDate] = useState(() => {
     const pm = location.state?.printMonth;
     if (pm) {
@@ -49,12 +50,69 @@ export default function SchedulePage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // ---- Print: scale the whole calendar to fit exactly one landscape page ----
+  // Static CSS can't guarantee a single page (it can't measure content or know
+  // each machine's printer margins / orientation / scale). Instead, just before
+  // printing we measure the calendar at print-layout width and apply one uniform
+  // transform so it always shrinks to fit one page — no data clipped, no 2nd page.
+  // A4 / Letter landscape share a safe page box of ~1056 x 793 CSS px @96dpi.
+  const PAGE_W = 1056;
+  const PAGE_H = 793;
+  const PAGE_MARGIN = 24; // ~6mm breathing room, inside any printer's dead zone
+
+  const fitForPrint = useCallback(() => {
+    const el = pageRef.current;
+    if (!el) return;
+    document.body.classList.add('print-mode');
+    // Lay out at the printable width with no transform, then measure natural size.
+    el.style.transformOrigin = 'top left';
+    el.style.transform = 'none';
+    el.style.width = `${PAGE_W - PAGE_MARGIN * 2}px`;
+    const naturalW = el.scrollWidth || PAGE_W - PAGE_MARGIN * 2;
+    const naturalH = el.scrollHeight || 1;
+    const scale = Math.min(
+      (PAGE_W - PAGE_MARGIN * 2) / naturalW,
+      (PAGE_H - PAGE_MARGIN * 2) / naturalH,
+    );
+    // Center the scaled calendar within the page box.
+    const tx = (PAGE_W - naturalW * scale) / 2;
+    const ty = (PAGE_H - naturalH * scale) / 2;
+    el.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+  }, []);
+
+  const resetAfterPrint = useCallback(() => {
+    const el = pageRef.current;
+    if (el) {
+      el.style.transform = '';
+      el.style.width = '';
+      el.style.transformOrigin = '';
+    }
+    document.body.classList.remove('print-mode');
+  }, []);
+
+  // Catch every print path: the button, the auto-print below, and the browser's
+  // own Ctrl+P / menu print.
+  useEffect(() => {
+    window.addEventListener('beforeprint', fitForPrint);
+    window.addEventListener('afterprint', resetAfterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', fitForPrint);
+      window.removeEventListener('afterprint', resetAfterPrint);
+    };
+  }, [fitForPrint, resetAfterPrint]);
+
+  const handlePrint = () => {
+    fitForPrint();
+    window.print();
+  };
+
   // Auto-print when navigated from AI agent
   useEffect(() => {
     if (location.state?.printMonth && !loading && !printMonthHandled.current) {
       printMonthHandled.current = true;
-      setTimeout(() => window.print(), 500);
+      setTimeout(handlePrint, 500);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state, loading]);
 
   // Calendar grid calculation
@@ -138,7 +196,7 @@ export default function SchedulePage() {
   const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
   return (
-    <div className="schedule-page">
+    <div className="schedule-page" ref={pageRef}>
       {/* Calendar Header */}
       <div className="calendar-header">
         <div className="calendar-nav">
@@ -214,7 +272,7 @@ export default function SchedulePage() {
 
       {/* Bottom Actions */}
       <div className="calendar-footer">
-        <button className="btn btn-secondary" onClick={() => window.print()}>
+        <button className="btn btn-secondary" onClick={handlePrint}>
           <FiPrinter /> 列印排表 / PRINT
         </button>
         <button className="btn btn-secondary" onClick={() => navigate('/staff')}>
