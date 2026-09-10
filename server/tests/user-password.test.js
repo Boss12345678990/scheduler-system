@@ -3,6 +3,18 @@ const assert = require('node:assert/strict');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
 
+test('plain-text passwords edited directly in MongoDB authenticate without a format field', async () => {
+  const user = User.hydrate({ password: 'ManualReset123!' });
+  assert.equal(await user.matchPassword('ManualReset123!'), true);
+  assert.equal(await user.matchPassword('wrong-password'), false);
+  assert.equal(await user.matchPassword(undefined), false);
+});
+
+test('an explicit bcrypt format never accepts the stored value as a plain-text password', async () => {
+  const user = User.hydrate({ password: 'MalformedHash123!', passwordFormat: 'bcrypt' });
+  assert.equal(await user.matchPassword('MalformedHash123!'), false);
+});
+
 // Replace only database I/O; validation, save hooks, and password checks stay real.
 test('new passwords are stored unchanged and authenticate after loading', async (t) => {
   let stored;

@@ -22,8 +22,7 @@ const userSchema = new mongoose.Schema({
   passwordFormat: {
     type: String,
     enum: ['bcrypt', 'plain'],
-    // Existing documents have no format field and contain bcrypt hashes.
-    default: 'bcrypt',
+    // Older documents and manual database edits may have no format field.
   },
   isFirstLogin: {
     type: Boolean,
@@ -41,9 +40,11 @@ userSchema.pre('save', async function () {
 
 // Continue accepting passwords for accounts created with bcrypt hashing.
 userSchema.methods.matchPassword = async function (enteredPassword) {
-  if (typeof enteredPassword !== 'string') return false;
-  if (this.passwordFormat === 'plain') return enteredPassword === this.password;
-  return await bcrypt.compare(enteredPassword, this.password);
+  if (typeof enteredPassword !== 'string' || typeof this.password !== 'string') return false;
+  const format = this.passwordFormat ?? (/^\$2[aby]\$/.test(this.password) ? 'bcrypt' : 'plain');
+  if (format === 'plain') return enteredPassword === this.password;
+  if (format === 'bcrypt') return await bcrypt.compare(enteredPassword, this.password);
+  return false;
 };
 
 module.exports = mongoose.model('User', userSchema);
